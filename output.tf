@@ -15,16 +15,6 @@ output "linux_vm_password" {
   value       = var.disable_password_authentication == false && var.admin_password == null ? element(concat(random_password.passwd[*].result, [""]), 0) : var.admin_password
 }
 
-output "vm_public_ips" {
-  description = "Public IP's map for the all Virtual Machines"
-  value       = var.public_ip_address_name != null && var.os_flavor == "linux" ? zipmap(azurerm_virtual_machine.linux_vm[*].name, azurerm_virtual_machine.linux_vm[*].public_ip_address) : null
-}
-
-output "vm_private_ips" {
-  description = "Public IP's map for the all  Virtual Machines"
-  value       = var.os_flavor == "linux" ? zipmap(azurerm_virtual_machine.linux_vm[*].name, azurerm_virtual_machine.linux_vm[*].private_ip_address) : null
-}
-
 output "virtual_machine_ids" {
   description = "The resource id's of all Virtual Machine."
   value       = var.os_flavor == "linux" ? concat(azurerm_virtual_machine.linux_vm[*].id, [""]) : null

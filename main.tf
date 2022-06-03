@@ -344,7 +344,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
 
   # license_type = null "Windows_Client"/"Windows_Server"
 
-  zones                           = [var.vm_availability_zone]
+  zones                           = var.vm_availability_zone != null && var.vm_availability_zone != "" ? [var.vm_availability_zone] : null
   tags                            = merge({ "ResourceName" = format("%s-vm-%s-%s", lower(replace(local.resource_prefix, "/[[:^alnum:]]/", "")), lower(replace(var.virtual_machine_name, "/[[:^alnum:]]/", "")), count.index + 1) }, var.tags, )
 
   os_profile {
@@ -356,6 +356,16 @@ resource "azurerm_virtual_machine" "linux_vm" {
 
   os_profile_linux_config {
     disable_password_authentication = var.disable_password_authentication
+  }
+
+  dynamic "plan" {
+    for_each = var.source_image_id != null ? [] : [1]
+
+    content {
+      name      = var.custom_image != null ? var.custom_image.sku : null
+      product   = var.custom_image != null ? var.custom_image.offer : null
+      publisher = var.custom_image != null ? var.custom_image.publisher : null
+    }
   }
 
   dynamic "storage_image_reference" {
@@ -370,7 +380,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
   }
 
   storage_os_disk {
-    name                      = var.os_disk_name
+    name                      = "${local.resource_prefix}-${var.virtual_machine_name}-osdisk"
     create_option             = "FromImage"
     caching                   = var.os_disk_caching
     disk_size_gb              = var.disk_size_gb
@@ -380,16 +390,16 @@ resource "azurerm_virtual_machine" "linux_vm" {
   }
 
   dynamic "storage_data_disk" {
-    for_each = var.data_disks
+    for_each = local.vm_data_disks
     
     content {
-      name                      = "${local.resource_prefix}-${var.virtual_machine_name}-datadisk-${each.value.idx}"
+      name                      = "${local.resource_prefix}-${var.virtual_machine_name}-datadisk-${storage_data_disk.value.idx}"
       caching                   = var.os_disk_caching
       create_option             = "FromImage"
-      disk_size_gb              = each.value.data_disk.disk_size_gb
-      lun                       = each.value.idx
-      write_accelerator_enabled = os.enable_os_disk_write_accelerator
-      managed_disk_type         = lookup(each.value.data_disk, "storage_account_type", "StandardSSD_LRS")
+      disk_size_gb              = storage_data_disk.value.data_disk.disk_size_gb
+      lun                       = storage_data_disk.value.idx
+      write_accelerator_enabled = var.enable_os_disk_write_accelerator
+      managed_disk_type         = lookup(storage_data_disk.value.data_disk, "storage_account_type", "StandardSSD_LRS")
     }
   }
 

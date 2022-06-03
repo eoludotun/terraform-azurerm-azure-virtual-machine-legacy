@@ -1,0 +1,6 @@
+{
+    "name": "terraform-azurerm-azure-virtual-machine-legacy",
+    "description": "Terraform module for creating an Azure Virtual Machine (Windows or Linux) using the legacy azurerm_virtual_machine resource",
+    "version": "v1.0.0",
+    "message": "Inital Version"
+}

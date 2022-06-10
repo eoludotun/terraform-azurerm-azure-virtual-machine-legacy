@@ -112,6 +112,7 @@ variable "platform_fault_domain_count" {
   description = "Specifies the number of fault domains that are used"
   default     = 3
 }
+
 variable "platform_update_domain_count" {
   description = "Specifies the number of update domains that are used"
   default     = 5
@@ -144,6 +145,21 @@ variable "network_interface_instances_count" {
 
 variable "network_interfaces" {
   description = "List of network interfaces."
+  default     = []
+}
+
+variable "route_table_name" {
+  description = "(Optional) Name of route table to add custom routes to"
+  default     = null
+}
+
+variable "route_table_resource_group_name" {
+  description = "(Optional) Name of the resource group that contains the route table"
+  default     = null
+}
+
+variable "routes" {
+  description = "Custom routes."
   default     = []
 }
 
@@ -769,6 +785,16 @@ variable "log_analytics_workspace_storage_account_id" {
   default     = null
 }
 
+variable "log_analytics_workspace_sku" {
+  description = "The Sku of the Log Analytics Workspace. Possible values are Free, PerNode, Premium, Standard, Standalone, Unlimited, and PerGB2018"
+  default     = "PerGB2018"
+}
+
+variable "log_analytics_logs_retention_in_days" {
+  description = "The log analytics workspace data retention in days. Possible values range between 30 and 730."
+  default     = 30
+}
+
 variable "create_storage_account" {
   description = "Indicate if the storage account should be created"
   default     = true
@@ -796,6 +822,11 @@ variable "storage_account_resource_group_name" {
 
 variable "deploy_log_analytics_agent" {
   description = "Install log analytics agent to windows or linux VM"
+  default     = false
+}
+
+variable "accept_marketplace_agreement" {
+  description = "(Optional) Accept Marketplce Agreement for the requested Virtual Machine Image"
   default     = false
 }
 
